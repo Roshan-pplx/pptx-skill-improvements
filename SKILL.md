@@ -44,7 +44,7 @@ python skills/pptx/scripts/office/unpack.py presentation.pptx unpacked/
 
 **Read [pptxgenjs.md](pptxgenjs.md) for full details.**
 
-Use when no template or reference presentation is available. Add speaker notes to every slide by default — use `slide.addNotes("...")` with 2-3 talking points per slide.
+Use when no template or reference presentation is available. **Always define slide masters first** — every from-scratch deck must have at least a title and content master defined before adding slides. Add speaker notes to every slide by default — use `slide.addNotes("...")` with 2-3 talking points per slide.
 
 ---
 
