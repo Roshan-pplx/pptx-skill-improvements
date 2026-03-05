@@ -440,19 +440,88 @@ slide.addNotes("Recap the 3 main points. End with the call to action.\nLeave 5 m
 
 ---
 
-## Slide Masters
+## Slide Masters (Required)
+
+**Every presentation created from scratch MUST define at least one slide master before adding any slides.** This ensures consistent branding, font defaults, and background styling across all slides.
+
+### Why Slide Masters Matter
+
+- **Consistency** — backgrounds, fonts, and colors apply automatically to every slide that references the master, so you don't repeat styling on each slide
+- **Professional appearance** — a unified look signals intentional design; mismatched slides signal laziness
+- **Easier theme changes** — update the master definition and every referencing slide updates with it
+- **Default fonts and colors propagate** — text added to placeholders inherits the master's font settings, reducing per-element styling
+
+### Defining Masters
+
+Call `pres.defineSlideMaster(...)` for each master **before** any `pres.addSlide(...)` calls. At minimum, define a title slide master and a content slide master.
 
 ```javascript
+const pptxgen = require("pptxgenjs");
+let pres = new pptxgen();
+pres.layout = "LAYOUT_16x9";
+
+// ─── Define all slide masters FIRST ───────────────────────────
+
+// 1. Title slide — dark background, centered title and subtitle
 pres.defineSlideMaster({
-  title: 'TITLE_SLIDE', background: { color: '283A5E' },
-  objects: [{
-    placeholder: { options: { name: 'title', type: 'title', x: 1, y: 2, w: 8, h: 2 } }
-  }]
+  title: "TITLE_SLIDE",
+  background: { color: "1E2761" },
+  objects: [
+    { placeholder: { options: { name: "title", type: "title", x: 1, y: 1.5, w: 8, h: 1.5, fontFace: "Georgia", fontSize: 40, color: "FFFFFF", bold: true, align: "center" } } },
+    { placeholder: { options: { name: "subtitle", type: "body", x: 1, y: 3.2, w: 8, h: 1, fontFace: "Calibri", fontSize: 20, color: "CADCFC", align: "center" } } }
+  ]
 });
 
-let titleSlide = pres.addSlide({ masterName: "TITLE_SLIDE" });
-titleSlide.addText("My Title", { placeholder: "title" });
+// 2. Content slide — light background, top title area, body area with standard margins
+pres.defineSlideMaster({
+  title: "CONTENT_SLIDE",
+  background: { color: "F2F2F2" },
+  objects: [
+    // Title bar background
+    { rect: { x: 0, y: 0, w: 10, h: 0.9, fill: { color: "1E2761" } } },
+    { placeholder: { options: { name: "title", type: "title", x: 0.5, y: 0.1, w: 9, h: 0.7, fontFace: "Georgia", fontSize: 24, color: "FFFFFF", bold: true } } },
+    { placeholder: { options: { name: "body", type: "body", x: 0.5, y: 1.2, w: 9, h: 4.0, fontFace: "Calibri", fontSize: 16, color: "363636" } } }
+  ]
+});
+
+// 3. Section divider (optional) — bold color break between sections
+pres.defineSlideMaster({
+  title: "SECTION_DIVIDER",
+  background: { color: "283A5E" },
+  objects: [
+    { placeholder: { options: { name: "title", type: "title", x: 1, y: 2, w: 8, h: 1.5, fontFace: "Georgia", fontSize: 36, color: "FFFFFF", bold: true, align: "center" } } }
+  ]
+});
+
+// ─── Now add slides using the masters ─────────────────────────
+
+let slide1 = pres.addSlide({ masterName: "TITLE_SLIDE" });
+slide1.addText("Quarterly Business Review", { placeholder: "title" });
+slide1.addText("Q4 2025 Results & Outlook", { placeholder: "subtitle" });
+
+let slide2 = pres.addSlide({ masterName: "CONTENT_SLIDE" });
+slide2.addText("Revenue Summary", { placeholder: "title" });
+slide2.addText("Body content here — or skip the placeholder and add elements manually.", { placeholder: "body" });
+
+let slide3 = pres.addSlide({ masterName: "SECTION_DIVIDER" });
+slide3.addText("Regional Breakdown", { placeholder: "title" });
 ```
+
+### Using Masters with Slides
+
+Every `addSlide()` call should reference a master:
+
+```javascript
+// ✅ CORRECT: slide inherits master's background, fonts, and layout
+let slide = pres.addSlide({ masterName: "CONTENT_SLIDE" });
+
+// ❌ AVOID: bare slide with no master — falls back to blank default
+let slide = pres.addSlide();
+```
+
+Slides without a `masterName` fall back to a blank white default, which defeats the purpose of defining masters. You can still add any elements (text, shapes, charts, images) on top of a mastered slide — the master provides the base layer, not a constraint.
+
+**Note:** You do not have to use placeholders. A master can define just a background and default objects (like a logo or footer bar), and you can add all content with regular `addText`, `addShape`, etc. calls. Placeholders are a convenience for common title/body positions, not a requirement.
 
 ---
 
